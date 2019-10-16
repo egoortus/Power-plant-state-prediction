@@ -1,9 +1,9 @@
-import analysis
+import layout
 import callbacks
 
 from app import app
 
-app.layout = analysis.body
+app.layout = layout.body
 
 
 if __name__ == '__main__':
