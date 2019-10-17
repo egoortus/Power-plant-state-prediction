@@ -5,6 +5,7 @@ import re
 
 import pandas as pd
 
+import dash
 import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 import dash_html_components as html
@@ -166,15 +167,6 @@ def update_content(uploads, files, content):
 
 
 @app.callback(
-    Output('dummy', 'children'),
-    [Input('delete-files-btn', 'n_clicks')],
-    [State('delete-files-btn', 'n_clicks')],
-)
-def delete_all_files(n, m):
-    return f'{n} {m}'
-
-
-@app.callback(
     Output('counter-badge', 'children'),
     [Input('files-table', 'data')]
 )
@@ -224,16 +216,48 @@ def show_errors(messages, old_messages):
 
 
 @app.callback(
-    Output('graph-raw-signal', 'figure'),
+    Output('filter-select', 'label'),
+    [
+        Input("orig-filter-select", 'n_clicks'),
+        Input("fir-filter-select", 'n_clicks'),
+        Input("iir-filter-select", 'n_clicks'),
+    ]
+)
+def update_filter_select(*buttons):
+    ctx = dash.callback_context
+
+    if any(buttons):
+        button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+        if button_id == 'iir-filter-select':
+            return 'IIR'
+        elif button_id == 'fir-filter-select':
+            return 'FIR'
+
+    return 'Original'
+
+
+@app.callback(
+    Output('graph-signal', 'figure'),
     [
         Input('content-table', 'data'),
         Input('files-table', 'selected_rows'),
+        Input('filter-select', 'label'),
+        Input('use_delta_switch', 'value'),
     ],
-    [State('graph-raw-signal', 'figure')]
+    [State('graph-signal', 'figure')]
 )
-def update_graph_raw_signal(data, selected_rows, figure):
+def update_graph_signal(data, selected_rows, filter_type, use_delta, figure):
     figure['data'] = []
-    df = pd.DataFrame(data).iloc[:, selected_rows]
+    df = pd.DataFrame(data).iloc[:, selected_rows]    
+    
+    if filter_type == 'FIR':
+        df = features.get_filtered_fir(df)
+    if filter_type == 'IIR':
+        df = features.get_filtered_iir(df)
+
+    if use_delta:
+        df = features.get_delta(df)
 
     for col in df.columns:
         figure['data'].append({
@@ -248,25 +272,8 @@ def update_graph_raw_signal(data, selected_rows, figure):
 
 
 @app.callback(
-    Output('graph-delta-signal', 'figure'),
-    [
-        Input('content-table', 'data'),
-        Input('files-table', 'selected_rows'),
-    ],
-    [State('graph-delta-signal', 'figure')]
+    Output('signal-graph-back', 'hidden'),
+    [Input('files-table', 'data')]
 )
-def update_graph_delta_signal(data, selected_rows, figure):
-    figure['data'] = []
-    df = pd.DataFrame(data).iloc[:, selected_rows]
-    df = features.get_delta(df)
-
-    for col in df.columns:
-        figure['data'].append({
-            'name': col,
-            'type': 'scatter',
-            'mode': 'line',
-            'x': df.index,
-            'y': df[col],
-        })
-
-    return figure
+def toggle_signal_graph_back(data):
+    return True if data else False

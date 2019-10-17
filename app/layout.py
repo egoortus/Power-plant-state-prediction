@@ -60,7 +60,7 @@ files_upload = dbc.Card(dbc.CardBody([
         disable_click=True,
         style={
             'position': 'relative',
-            'marginBottom': '1.25rem'
+            'marginBottom': '15px'
         },
         style_active={'background': '#94c8ff52'},
         children=[
@@ -132,79 +132,66 @@ files_upload = dbc.Card(dbc.CardBody([
                 ),
             ]
         ),
-    ],
-    justify="between"
-    )
+    ])
 ]))
 
-visualizations = [
-    dcc.Graph(
-        id='graph-raw-signal',
-        config={
-            'responsive': True,
-            'displayModeBar': False,
-        },
-        style={
-            'width': '100%',
-            'height': '200px',
-        },
-        figure={
-            'layout': {
-                'title': 'Original Time Signal',
-                'margin': {'t': 40, 'l': 40, 'b': 30, 'r': 20},
-                'showlegend': False
+
+signal = dbc.Card(dbc.CardBody([
+    html.Div(id='signal-graph-back', className='graph-back'),
+    dbc.Row(
+        dcc.Graph(
+            id='graph-signal',
+            config={
+                'responsive': True,
+                'displayModeBar': False,
+            },
+            style={
+                'width': '100%',
+                'height': '315px',
+            },
+            figure={
+                'layout': {
+                    'title': 'Signal',
+                    'margin': {'t': 40, 'l': 40, 'b': 30, 'r': 20},
+                    'showlegend': False
+                }
             }
-        }
+        ),
     ),
-    dcc.Graph(
-        id='graph-delta-signal',
-        config={
-            'responsive': True,
-            'displayModeBar': False,
-        },
-        style={
-            'width': '100%',
-            'height': '200px',
-        },
-        figure={
-            'layout': {
-                'title': 'Original Delta Time Signal',
-                'margin': {'t': 40, 'l': 40, 'b': 30, 'r': 20},
-                'showlegend': False
-            }
-        }
-    ),
-    dcc.Graph(
-        id='graph-fft-signal',
-        config={
-            'responsive': True,
-            'displayModeBar': False,
-        },
-        style={
-            'width': '100%',
-            'height': '200px',
-        },
-        figure={
-            'layout': {
-                'title': 'Original Time Signal Fast Fourier Transform',
-                'margin': {'t': 40, 'l': 40, 'b': 30, 'r': 20},
-                'showlegend': False
-            }
-        }
-    ),
-    dcc.Graph(
-        id='graph-radar-chart',
-        config={
-            'responsive': True,
-            'displayModeBar': False,
-        },
-        style={
-            'width': '100%',
-            'height': '300px',
-        },
-        figure={'layout': {'polar': True}}
-        )
-]
+    dbc.Row(
+        align='center',
+        justify='between',
+        children= [
+            dbc.Col(
+                children=dbc.Checklist(
+                    id="use_delta_switch",
+                    options=[{"label": "ΔSinganal", "value": 1}],
+                    value=[],
+                    switch=True,
+                )
+            ),
+            dbc.Col(
+                width=4,
+                children=dbc.DropdownMenu(
+                    id='filter-select',
+                    addon_type="prepend",
+                    label='Original',
+                    color='primary',
+                    direction='up',
+                    group=True,
+                    right=True,
+                    children=[
+                        dbc.DropdownMenuItem("Original", id="orig-filter-select"),
+                        dbc.DropdownMenuItem(divider=True),
+                        dbc.DropdownMenuItem("FIR", id="fir-filter-select"),
+                        dbc.DropdownMenuItem("IIR", id="iir-filter-select"),
+                    ],
+                    
+                ),
+            )
+        ]
+    )
+]))
 
 
 body = html.Div(
@@ -215,9 +202,8 @@ body = html.Div(
         header,
         dbc.Row([
             dbc.Col(files_upload, width=12, lg=5, xl=4),
-            dbc.Col(visualizations, width=12, lg=7, xl=8)
+            dbc.Col(signal, width=12, lg=7, xl=8)
         ]),
-        html.Div(id='dummy')
     ],
     style={
         'padding': '0 15px 0 15px',

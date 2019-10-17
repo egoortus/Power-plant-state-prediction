@@ -29,8 +29,28 @@
     content: "Drag and Drop";
 }
 
+.graph-back {
+    display: flex;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    z-index: 999;
+    background: #ffffffe6;
+}
+
+
+.graph-back::after {
+    display: flex;
+    margin: auto;
+    content: "No Data";
+}
+
 .col-12 {
-    margin-top: 15px;
+    padding: 15px;
 }
 
 .card {

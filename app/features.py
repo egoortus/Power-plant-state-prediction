@@ -19,3 +19,14 @@ def get_fft(signal_df):
         )[2].ravel(),
         result_type='expand'
     )
+
+
+def get_filtered_fir(signal_df):
+    window = np.ones(11) / 11
+    return signal_df \
+        .apply(lambda s: np.convolve(s, window, mode='valid'))
+
+
+def get_filtered_iir(signal_df):
+    a, b = signal.butter(1, 0.01)
+    return signal_df.apply(lambda x: signal.filtfilt(a, b, x))
