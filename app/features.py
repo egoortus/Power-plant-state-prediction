@@ -23,8 +23,7 @@ def get_fft(signal_df):
 
 def get_filtered_fir(signal_df):
     window = np.ones(11) / 11
-    return signal_df \
-        .apply(lambda s: np.convolve(s, window, mode='valid'))
+    return signal_df.apply(lambda s: np.convolve(s, window, mode='valid'))
 
 
 def get_filtered_iir(signal_df):

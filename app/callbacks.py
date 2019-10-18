@@ -3,6 +3,7 @@ import datetime
 import io
 import re
 
+import numpy as np
 import pandas as pd
 
 import dash
@@ -10,12 +11,13 @@ import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_table as dt
-
 from dash.dependencies import Input, Output, State
 
-from app import app
+import plotly.graph_objects as go
+import plotly.express as px
 
 import features
+from app import app
 
 
 @app.callback(
@@ -238,17 +240,15 @@ def update_filter_select(*buttons):
 
 
 @app.callback(
-    Output('graph-signal', 'figure'),
+    Output('signal-table', 'data'),
     [
         Input('content-table', 'data'),
         Input('files-table', 'selected_rows'),
         Input('filter-select', 'label'),
         Input('use_delta_switch', 'value'),
-    ],
-    [State('graph-signal', 'figure')]
+    ]
 )
-def update_graph_signal(data, selected_rows, filter_type, use_delta, figure):
-    figure['data'] = []
+def update_signal_table(data, selected_rows, filter_type, use_delta):
     df = pd.DataFrame(data).iloc[:, selected_rows]    
     
     if filter_type == 'FIR':
@@ -259,11 +259,21 @@ def update_graph_signal(data, selected_rows, filter_type, use_delta, figure):
     if use_delta:
         df = features.get_delta(df)
 
+    return df.to_dict('records')
+
+
+@app.callback(
+    Output('signal-graph', 'figure'),
+    [Input('signal-table', 'data')],
+    [State('signal-graph', 'figure')]
+)
+def update_signal_graph(data, figure):
+    figure['data'] = []
+    df = pd.DataFrame.from_records(data)
+    
     for col in df.columns:
         figure['data'].append({
             'name': col,
-            'type': 'scatter',
-            'mode': 'line',
             'x': df.index,
             'y': df[col],
         })
@@ -273,7 +283,41 @@ def update_graph_signal(data, selected_rows, filter_type, use_delta, figure):
 
 @app.callback(
     Output('signal-graph-back', 'hidden'),
-    [Input('files-table', 'data')]
+    [Input('signal-graph', 'figure')]
 )
-def toggle_signal_graph_back(data):
-    return True if data else False
+def toggle_signal_graph_back(figure):
+    return True if figure['data'] else False
+
+
+@app.callback(
+    Output('statistic-graph', 'figure'),
+    [Input('signal-table', 'data')],
+    [State('statistic-graph', 'figure')]
+)
+def update_statistic_graph(data, figure):    
+    if data: 
+        df = pd.DataFrame.from_records(data)
+        df = df.T.stack().reset_index(level=0)
+        df.columns = ['sample', 'value']
+
+        fig = px.histogram(
+            data_frame=df,
+            x="value",
+            y='value',
+            color="sample",
+            marginal="box",
+            nbins=100,
+            opacity=0.8
+        )
+
+        figure['data'] = fig.data
+
+    return figure
+
+
+@app.callback(
+    Output('statistic-graph-back', 'hidden'),
+    [Input('signal-graph', 'figure')]
+)
+def toggle_statistic_graph_back(figure):
+    return True if figure['data'] else False
