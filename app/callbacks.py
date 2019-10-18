@@ -294,7 +294,9 @@ def toggle_signal_graph_back(figure):
     [Input('signal-table', 'data')],
     [State('statistic-graph', 'figure')]
 )
-def update_statistic_graph(data, figure):    
+def update_statistic_graph(data, figure):
+    figure['data'] = []
+
     if data: 
         df = pd.DataFrame.from_records(data)
         df = df.T.stack().reset_index(level=0)
@@ -320,4 +322,33 @@ def update_statistic_graph(data, figure):
     [Input('signal-graph', 'figure')]
 )
 def toggle_statistic_graph_back(figure):
+    return True if figure['data'] else False
+
+
+@app.callback(
+    Output('spectrum-graph', 'figure'),
+    [Input('signal-table', 'data')],
+    [State('spectrum-graph', 'figure')]
+)
+def update_spectrum_graph(data, figure):
+    figure['data'] = []
+    df = pd.DataFrame.from_records(data)
+
+    df = features.get_fft(df)
+    
+    for col in df.columns:
+        figure['data'].append({
+            'name': col,
+            'x': df.index,
+            'y': df[col],
+        })
+
+    return figure
+
+
+@app.callback(
+    Output('spectrum-graph-back', 'hidden'),
+    [Input('spectrum-graph', 'figure')]
+)
+def toggle_spectrum_graph_back(figure):
     return True if figure['data'] else False
