@@ -3,8 +3,6 @@ import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_table as dt
 
-import plotly.graph_objects as go
-
 ui_messages = html.Div(
     id='messages',
     children=[
@@ -164,7 +162,7 @@ signal = dbc.Card(dbc.CardBody([
     dbc.Row(
         align='center',
         justify='between',
-        children= [
+        children=[
             dbc.Col(
                 children=dbc.Checklist(
                     id="use_delta_switch",
@@ -189,7 +187,6 @@ signal = dbc.Card(dbc.CardBody([
                         dbc.DropdownMenuItem("FIR", id="fir-filter-select"),
                         dbc.DropdownMenuItem("IIR", id="iir-filter-select"),
                     ],
-                    
                 ),
             )
         ]
@@ -210,7 +207,7 @@ statistic = dbc.Card(dbc.CardBody([
                 'width': '100%',
                 'height': '400px',
             },
-            figure = {
+            figure={
                 'layout': {
                     'barmode': 'overlay',
                     'xaxis': {

@@ -1,19 +1,14 @@
 import base64
-import datetime
 import io
 import re
 
-import numpy as np
 import pandas as pd
 
 import dash
-import dash_core_components as dcc
 import dash_bootstrap_components as dbc
 import dash_html_components as html
-import dash_table as dt
 from dash.dependencies import Input, Output, State
 
-import plotly.graph_objects as go
 import plotly.express as px
 
 import features
@@ -36,7 +31,7 @@ from app import app
 )
 def upload_files(names1, names2, contents1, contents2):
     names, contents = names1 or names2, contents1 or contents2
-    
+
     data, error_files = [], []
     inv_type_files, inv_fmt_files = [], []
 
@@ -62,18 +57,18 @@ def upload_files(names1, names2, contents1, contents2):
                     )
                     s.name = name
                     series.append(s)
-                except Exception as e:
+                except Exception:
                     inv_fmt_files.append(name)
 
         if series:
             df = pd.DataFrame(series).T
             data = df.to_dict('records')
-        
+
         if inv_fmt_files or inv_type_files:
             for name in inv_type_files:
                 msg = f'Invalid type of ', html.B(name), '! Only CSV format!'
                 error_files.append({'text': msg, 'type': 'danger'})
-            
+
             for name in inv_fmt_files:
                 msg = f'Invalid format of ', html.B(name), '! Only CSV format!'
                 error_files.append({'text': msg, 'type': 'danger'})
@@ -87,7 +82,7 @@ def upload_files(names1, names2, contents1, contents2):
         Output('files-table', 'selected_rows'),
         Output('table-controls-store', 'data'),
     ],
-    [   
+    [
         Input('upload-table', 'data'),
         Input('select-files-btn', 'n_clicks'),
         Input('delete-files-btn', 'n_clicks'),
@@ -124,10 +119,10 @@ def update_files(
         for col in df.columns:
             new_files_df = new_files_df.append({
                 'id': col,
-                'filename': col, 
+                'filename': col,
                 'length': len(df[col])
             }, ignore_index=True)
-        
+
         files_df = files_df \
             .append(new_files_df) \
             .drop_duplicates() \
@@ -136,9 +131,9 @@ def update_files(
         files = files_df.to_dict('records')
 
         if data:
-            selected_rows.extend(files_df[ \
-                    files_df['filename'].isin(new_files_df['filename']) \
-                ] \
+            selected_rows.extend(files_df[
+                    files_df['filename'].isin(new_files_df['filename'])
+                ]
                 .index
             )
             selected_rows = list(set(selected_rows))
@@ -155,11 +150,10 @@ def update_files(
     [State('content-table', 'data')]
 )
 def update_content(uploads, files, content):
-    data = []
     columns = [file['filename'] for file in files]
 
     uploads_df = pd.DataFrame(uploads)
-    content_df =  pd.DataFrame(content)
+    content_df = pd.DataFrame(content)
     duplicates = set(uploads_df.columns).intersection(set(content_df.columns))
     content_df = content_df.drop(columns=duplicates)
 
@@ -214,7 +208,7 @@ def show_errors(messages, old_messages):
             color=message['type'],
             dismissable=True,
             duration=5_000,
-        )  for message in messages]
+        ) for message in messages]
 
 
 @app.callback(
@@ -249,8 +243,8 @@ def update_filter_select(*buttons):
     ]
 )
 def update_signal_table(data, selected_rows, filter_type, use_delta):
-    df = pd.DataFrame(data).iloc[:, selected_rows]    
-    
+    df = pd.DataFrame(data).iloc[:, selected_rows]
+
     if filter_type == 'FIR':
         df = features.get_filtered_fir(df)
     if filter_type == 'IIR':
@@ -270,7 +264,7 @@ def update_signal_table(data, selected_rows, filter_type, use_delta):
 def update_signal_graph(data, figure):
     figure['data'] = []
     df = pd.DataFrame.from_records(data)
-    
+
     for col in df.columns:
         figure['data'].append({
             'name': col,
@@ -297,7 +291,7 @@ def toggle_signal_graph_back(figure):
 def update_statistic_graph(data, figure):
     figure['data'] = []
 
-    if data: 
+    if data:
         df = pd.DataFrame.from_records(data)
         df = df.T.stack().reset_index(level=0)
         df.columns = ['sample', 'value']
@@ -335,7 +329,7 @@ def update_spectrum_graph(data, figure):
     df = pd.DataFrame.from_records(data)
 
     df = features.get_fft(df)
-    
+
     for col in df.columns:
         figure['data'].append({
             'name': col,
