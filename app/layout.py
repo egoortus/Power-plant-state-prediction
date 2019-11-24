@@ -270,6 +270,57 @@ spectrum = dbc.Card(dbc.CardBody([
 ]))
 
 
+radar = dbc.Card(dbc.CardBody([
+    html.Div(id='radar-graph-back', className='graph-back'),
+    dbc.Row(
+        dcc.Graph(
+            id='radar-graph',
+            config={
+                'responsive': True,
+                'displayModeBar': False,
+            },
+            style={
+                'width': '100%',
+                'height': '400px',
+            },
+            figure={
+                'layout': {
+                    'title': 'Classification',
+                    'margin': {'t': 40, 'l': 40, 'b': 30, 'r': 20},
+                    'showlegend': False
+                }
+            }
+        ),
+    )
+]))
+
+
+trend = dbc.Card(dbc.CardBody([
+    html.Div(id='trend-graph-back', className='graph-back'),
+    dbc.Row(
+        dcc.Graph(
+            id='trend-graph',
+            config={
+                'responsive': True,
+                'displayModeBar': False,
+            },
+            style={
+                'width': '100%',
+                'height': '400px',
+            },
+            figure={
+                'layout': {
+                    'title': 'Trend',
+                    'margin': {'t': 40, 'l': 40, 'b': 30, 'r': 20},
+                    'showlegend': False
+                },
+                'data': []
+            }
+        ),
+    )
+]))
+
+
 body = html.Div(
     children=[
         dt.DataTable(id='content-table', page_action='none', data=[]),
@@ -284,6 +335,10 @@ body = html.Div(
         dbc.Row([
             dbc.Col(statistic, width=12, lg=5, xl=5),
             dbc.Col(spectrum, width=12, lg=7, xl=7)
+        ]),
+        dbc.Row([
+            dbc.Col(radar, width=12, lg=5, xl=5),
+            dbc.Col(trend, width=12, lg=7, xl=7)
         ]),
     ],
     style={

@@ -3,6 +3,7 @@ import io
 import re
 
 import pandas as pd
+import numpy as np
 
 import dash
 import dash_bootstrap_components as dbc
@@ -12,6 +13,7 @@ from dash.dependencies import Input, Output, State
 import plotly.express as px
 
 import features
+import models
 from app import app
 
 
@@ -345,4 +347,71 @@ def update_spectrum_graph(data, figure):
     [Input('spectrum-graph', 'figure')]
 )
 def toggle_spectrum_graph_back(figure):
+    return True if figure['data'] else False
+
+
+@app.callback(
+    Output('radar-graph', 'figure'),
+    [Input('signal-table', 'data')],
+    [
+        State('radar-graph', 'figure'),
+        State('content-table', 'data'),
+        State('files-table', 'selected_rows'),
+    ]
+)
+def update_radar_graph(data, figure, content, selected_rows):
+    figure['data'] = []
+    df = pd.DataFrame(content).iloc[:, selected_rows]
+
+    df = features.get_fft(df)
+
+    for col in df.columns:
+        figure['data'].append({
+            'name': col + ' - ' + models.logistic_regression.predict([df[col]])[0],
+            'r': models.logistic_regression.predict_proba([df[col]])[0],
+            'theta': models.logistic_regression.classes_,
+            'type': 'scatterpolar',
+            'fill': 'toself'
+        })
+
+    return figure
+
+
+@app.callback(
+    Output('radar-graph-back', 'hidden'),
+    [Input('radar-graph', 'figure')]
+)
+def toggle_radar_graph_back(figure):
+    return True if figure['data'] else False
+
+
+@app.callback(
+    Output('trend-graph', 'figure'),
+    [
+        Input('content-table', 'data'),
+        Input('files-table', 'selected_rows'),
+    ],
+    [State('trend-graph', 'figure')]
+)
+def update_trend_graph(data, selected_rows, figure):
+    if data:
+        df = pd.DataFrame(data).iloc[:, selected_rows]
+        df = features.get_fft(df)
+
+        index_good = np.where(models.logistic_regression.classes_ == 'good')[0][0]
+        probabilities = models.logistic_regression.predict_proba(df.T)
+
+        figure['data'] = [{
+            'x': df.columns,
+            'y': probabilities[:, index_good]
+        }]
+
+    return figure
+
+
+@app.callback(
+    Output('trend-graph-back', 'hidden'),
+    [Input('trend-graph', 'figure')]
+)
+def toggle_trend_graph_back(figure):
     return True if figure['data'] else False
