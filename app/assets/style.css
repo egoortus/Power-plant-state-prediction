@@ -1,0 +1,58 @@
+#select-files-btn {
+    position: relative;
+    background-image: url(/assets/selected.png) !important;
+    background-size: 60%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+#delete-files-btn {
+    background-image: url(/assets/bin.png) !important;
+    background-size: 60%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+#files-table-back {
+    display: flex;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    border: 1px dashed lightgray;
+    border-radius: 4px;
+}
+
+#files-table-back::after {
+    display: flex;
+    margin: auto;
+    content: "Drag and Drop";
+}
+
+.graph-back {
+    display: flex;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    z-index: 999;
+    background: #ffffffe6;
+}
+
+
+.graph-back::after {
+    display: flex;
+    margin: auto;
+    content: "No Data";
+}
+
+.col-12 {
+    padding: 15px;
+}
+
+.card {
+    box-shadow: 2px 2px 2px lightgrey;
+}
