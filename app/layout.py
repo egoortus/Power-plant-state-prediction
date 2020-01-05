@@ -52,38 +52,6 @@ header = dbc.Row([
 
 
 files_upload = dbc.Card(dbc.CardBody([
-    dcc.Upload(
-        id='files-upload',
-        multiple=True,
-        disable_click=True,
-        style={
-            'position': 'relative',
-            'marginBottom': '15px'
-        },
-        style_active={'background': '#94c8ff52'},
-        children=[
-            html.Div(id='files-table-back'),
-            dt.DataTable(
-                id='files-table',
-                columns=[
-                    {'id': 'filename', 'name': 'File'},
-                    {'id': 'length', 'name': 'Ticks'},
-                ],
-                data=[],
-                fixed_rows={'headers': True},
-                page_action='none',
-                row_selectable="multi",
-                row_deletable=True,
-                selected_rows=[],
-                selected_row_ids=[],
-                style_header={'display': 'none'},
-                style_table={
-                    'height': '300px',
-                    'overflowY': 'auto'
-                }
-            )
-        ]
-    ),
     dbc.Row(
         align='start',
         children=[
@@ -133,31 +101,38 @@ files_upload = dbc.Card(dbc.CardBody([
                 ]
             ),
         ],
-    )
-]))
-
-
-signal = dbc.Card(dbc.CardBody([
-    html.Div(id='signal-graph-back', className='graph-back'),
-    dbc.Row(
-        dcc.Graph(
-            id='signal-graph',
-            config={
-                'responsive': True,
-                'displayModeBar': False,
-            },
-            style={
-                'width': '100%',
-                'height': '315px',
-            },
-            figure={
-                'layout': {
-                    'title': 'Signal',
-                    'margin': {'t': 40, 'l': 40, 'b': 30, 'r': 20},
-                    'showlegend': False
+    ),
+    dcc.Upload(
+        id='files-upload',
+        multiple=True,
+        disable_click=True,
+        style={
+            'position': 'relative',
+            'margin': '15px 0'
+        },
+        style_active={'background': '#94c8ff52'},
+        children=[
+            html.Div(id='files-table-back'),
+            dt.DataTable(
+                id='files-table',
+                columns=[
+                    {'id': 'filename', 'name': 'File'},
+                    {'id': 'length', 'name': 'Ticks'},
+                ],
+                data=[],
+                fixed_rows={'headers': True},
+                page_action='none',
+                row_selectable="multi",
+                row_deletable=True,
+                selected_rows=[],
+                selected_row_ids=[],
+                style_header={'display': 'none'},
+                style_table={
+                    'height': '300px',
+                    'overflowY': 'auto'
                 }
-            }
-        ),
+            )
+        ]
     ),
     dbc.Row(
         align='center',
@@ -187,14 +162,38 @@ signal = dbc.Card(dbc.CardBody([
                         dbc.DropdownMenuItem("FIR", id="fir-filter-select"),
                         dbc.DropdownMenuItem("IIR", id="iir-filter-select"),
                     ],
-                ),
+                )
             )
         ]
-    )
+    ),
 ]))
 
 
-statistic = dbc.Card(dbc.CardBody([
+signal = [
+    html.Div(id='signal-graph-back', className='graph-back'),
+    dbc.Row(
+        dcc.Graph(
+            id='signal-graph',
+            config={
+                'responsive': True,
+                'displayModeBar': False,
+            },
+            style={
+                'width': '100%',
+                'height': '400px',
+            },
+            figure={
+                'layout': {
+                    'margin': {'t': 40, 'l': 40, 'b': 30, 'r': 20},
+                    'showlegend': False
+                }
+            }
+        ),
+    )
+]
+
+
+statistic = [
     html.Div(id='statistic-graph-back', className='graph-back'),
     dbc.Row(
         dcc.Graph(
@@ -237,15 +236,14 @@ statistic = dbc.Card(dbc.CardBody([
                     'margin': {'t': 40, 'l': 40, 'b': 30, 'r': 20},
                     'template': 'none',
                     'showlegend': False,
-                    'title': 'Statistic'
                 }
             }
         ),
     )
-]))
+]
 
 
-spectrum = dbc.Card(dbc.CardBody([
+spectrum = [
     html.Div(id='spectrum-graph-back', className='graph-back'),
     dbc.Row(
         dcc.Graph(
@@ -260,14 +258,20 @@ spectrum = dbc.Card(dbc.CardBody([
             },
             figure={
                 'layout': {
-                    'title': 'Spectrum',
                     'margin': {'t': 40, 'l': 40, 'b': 30, 'r': 20},
                     'showlegend': False
                 }
             }
         ),
     )
-]))
+]
+
+
+features = dbc.Card(dbc.CardBody(dcc.Tabs([
+    dcc.Tab(signal, label='Signal'),
+    dcc.Tab(statistic, label='Statistic'),
+    dcc.Tab(spectrum, label='Spectrum')
+])))
 
 
 radar = dbc.Card(dbc.CardBody([
@@ -330,11 +334,7 @@ body = html.Div(
         header,
         dbc.Row([
             dbc.Col(files_upload, width=12, lg=4, xl=4),
-            dbc.Col(signal, width=12, lg=8, xl=8)
-        ]),
-        dbc.Row([
-            dbc.Col(statistic, width=12, lg=5, xl=5),
-            dbc.Col(spectrum, width=12, lg=7, xl=7)
+            dbc.Col(features, width=12, lg=8, xl=8)
         ]),
         dbc.Row([
             dbc.Col(radar, width=12, lg=5, xl=5),
