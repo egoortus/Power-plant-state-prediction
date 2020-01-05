@@ -3,3 +3,4 @@ __pycache__
 venv
 .ipynb_checkpoints
 original_data.7z
+*.csv
