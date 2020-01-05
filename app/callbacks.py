@@ -387,16 +387,20 @@ def toggle_radar_graph_back(figure):
 
 @app.callback(
     Output('trend-graph', 'figure'),
+    [Input('signal-table', 'data')],
     [
-        Input('content-table', 'data'),
-        Input('files-table', 'selected_rows'),
-    ],
-    [State('trend-graph', 'figure')]
+        State('trend-graph', 'figure'),
+        State('content-table', 'data'),
+        State('files-table', 'selected_rows'),
+    ]
 )
-def update_trend_graph(data, selected_rows, figure):
-    if data:
-        df = pd.DataFrame(data).iloc[:, selected_rows]
-        df = features.get_fft(df)
+def update_trend_graph(data, figure, content, selected_rows):
+    figure['data'] = []
+    df = pd.DataFrame(content).iloc[:, selected_rows]
+
+    df = features.get_fft(df)
+
+    if df.shape[1]:
 
         index_good = np.where(models.logistic_regression.classes_ == 'good')[0][0]
         probabilities = models.logistic_regression.predict_proba(df.T)
