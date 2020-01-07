@@ -128,7 +128,7 @@ files_upload = dbc.Card(dbc.CardBody([
                 selected_row_ids=[],
                 style_header={'display': 'none'},
                 style_table={
-                    'height': '300px',
+                    'height': '340px',
                     'overflowY': 'auto'
                 }
             )
@@ -268,10 +268,10 @@ spectrum = [
 
 
 features = dbc.Card(dbc.CardBody(dcc.Tabs([
-    dcc.Tab(signal, label='Signal'),
-    dcc.Tab(statistic, label='Statistic'),
-    dcc.Tab(spectrum, label='Spectrum')
-])))
+    dcc.Tab(signal, label='Signal', style={'padding': '15px'}),
+    dcc.Tab(statistic, label='Statistic', style={'padding': '15px'}),
+    dcc.Tab(spectrum, label='Spectrum', style={'padding': '15px'})
+], style={"margin": 'calc(-1.25rem - 1px)', 'marginBottom': 0}), style={'boxSizing': 'border-box'}))
 
 
 radar = dbc.Card(dbc.CardBody([
